@@ -1,20 +1,28 @@
 import express from 'express';
-import events from 'events';
-
-// const router = express.Router();
-const eventsEmitter = new events.EventEmitter();
-
-//Defining an event
-eventsEmitter.on('test', () => {
-  console.log('Test Event Successful!');
-});
+import { config } from './config/env.variables';
+import { UserService } from './users/user.service';
+import { coreEventEmitter } from './common/coreEventEmitter';
+import { Event } from './common/constants';
 
 const app = express();
 
-app.get('/', (req, res) => {
-  //Subscribing to an event
-  eventsEmitter.emit('test');
-  res.send('Hello World')
+coreEventEmitter.on(Event.TEST, () => {
+  console.log('Test Event Successful!');
 });
 
-app.listen(3000);
+coreEventEmitter.on(Event.LIST_USERS, (req, res) => {
+  const usersService = new UserService();
+  usersService.getAll(res);
+  console.log('Listed Users Successful!');
+});
+
+app.get('/', (req, res) => {
+  coreEventEmitter.emit(Event.TEST);
+  res.send('Hello World');
+});
+
+app.get('/v1/users', (req, res) => {
+  coreEventEmitter.emit(Event.LIST_USERS, req, res);
+});
+
+app.listen(config.port);
