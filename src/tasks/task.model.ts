@@ -1,4 +1,4 @@
-import { BaseModel } from "../common/base.model";
+import { BaseModel } from '../common/base.model';
 
 export interface Task extends BaseModel {
   title: string;
